@@ -1,0 +1,33 @@
+---
+// src/components/Footer.astro
+const currentYear = new Date().getFullYear();
+import BootstrapIcon from './BootstrapIcon.astro';
+---
+
+<footer class="mt-auto border-t border-gray-200 bg-white">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    
+    <div class="flex items-center gap-10">
+      <div class="flex items-center">
+        <a 
+          href="/" 
+          class="text-xl font-bold tracking-tight text-slate-900 transition-colors hover:text-slate-700"
+        >
+          Calqit.
+        </a>
+      </div>
+
+      <nav class="flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-gray-600">
+        <a href="/regulamin" class="hover:text-gray-900 transition-colors">Regulamin</a>
+        <a href="/polityka-prywatnosci" class="hover:text-gray-900 transition-colors">Prywatność</a>
+        <a href="/dostepnosc" class="hover:text-gray-900 transition-colors">Dostępność</a>
+      </nav>
+
+    </div>
+
+    <div class="flex items-center gap-4 text-sm text-gray-400 text-center sm:text-right">
+      &copy; {currentYear} Calqit. Wszelkie prawa zastrzeżone.
+    </div>
+  </div>
+ 
+</footer>

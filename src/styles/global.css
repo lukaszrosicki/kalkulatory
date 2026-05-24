@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    /* Czyste, minimalistyczne tło, bardzo ciemny (prawie czarny) tekst dla wysokiego kontrastu */
+    @apply bg-white text-slate-900 antialiased selection:bg-slate-900 selection:text-white;
+  }
+}
+
+@layer components {
+  /* Gotowa klasa dla kart - idealnie odwzorowuje estetykę Skillta */
+  .card {
+    @apply bg-white border border-slate-100 rounded-xl p-6 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] 
+           hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] transition-shadow duration-300;
+  }
+}

@@ -1,0 +1,119 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import { ChevronRight, Home, Download, Tag, TrendingUp, Mail } from 'lucide-react';
+
+// Pobieramy zbiór wszystkich dynamicznych komponentów
+// Astro/Vite spakuje je i udostępni ich ścieżki
+const dynamicComponents = import.meta.glob('../../components/dynamic/*.astro');
+
+// Funkcja generująca statyczne ścieżki dla każdego pliku Markdown
+export async function getStaticPaths() {
+  const calculators = await getCollection('calculators');
+  
+  return calculators.map((calc) => ({
+    params: { slug: calc.id }, // w Astro 6 używamy .id jako unikalnego identyfikatora/sluga
+    props: { calc },
+  }));
+}
+
+// Restrykcyjne typowanie dla pobranego obiektu kolekcji
+interface Props {
+  calc: CollectionEntry<'calculators'>;
+}
+
+const { calc } = Astro.props;
+const { title, description, category, excelLink, downloadsCount } = calc.data;
+
+// Renderowanie zawartości Markdown do HTML
+const { Content } = await render(calc);
+
+// Wybieramy odpowiedni komponent z puli na podstawie sluga
+const componentPath = `../../components/dynamic/${calc.id}.astro`;
+const DynamicCompLoader = dynamicComponents[componentPath];
+const DynamicComponent = DynamicCompLoader ? (await DynamicCompLoader() as any).default : null;
+---
+
+<MainLayout title={`${title} - EcomCalculators`} description={description}>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    
+    <!-- Breadcrumbs i Nagłówek -->
+    <div class="max-w-3xl mb-12">
+      <nav aria-label="Breadcrumb" class="flex items-center text-sm font-medium text-slate-500 mb-6 space-x-2 whitespace-nowrap overflow-x-auto">
+        <a href="/" class="hover:text-blue-600 transition-colors flex items-center">
+          <Home size={16} class="mr-1.5" />
+          Strona główna
+        </a>
+        <ChevronRight size={16} class="text-slate-400 shrink-0" />
+        <a href="/kalkulatory" class="hover:text-blue-600 transition-colors">
+          Kalkulatory
+        </a>
+        <ChevronRight size={16} class="text-slate-400 shrink-0" />
+        <span class="text-slate-900 truncate" aria-current="page">{title}</span>
+      </nav>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
+        {title}
+      </h1>
+      <p class="text-lg text-slate-600">
+        {description}
+      </p>
+    </div>
+
+    <!-- Dwukolumnowy układ asymetryczny -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+      
+      <!-- Lewa kolumna: Główna zawartość (8/12) -->
+      <div class="lg:col-span-8 space-y-12">
+        
+        <!-- Interaktywny Kalkulator -->
+        {DynamicComponent ? (
+          <DynamicComponent />
+        ) : (
+          <div class="border-2 border-dashed border-slate-200 bg-slate-50 rounded-2xl flex flex-col items-center justify-center p-12 min-h-[400px]">
+            <div class="p-4 bg-white rounded-full shadow-sm mb-4">
+              <TrendingUp size={32} class="text-slate-400" />
+            </div>
+            <p class="text-slate-500 font-medium">Kalkulator "{title}" jest w trakcie budowy...</p>
+          </div>
+        )}
+
+        <!-- Renderowana treść Markdown -->
+        <article class="prose prose-slate prose-blue max-w-none prose-headings:font-semibold prose-a:text-blue-600">
+          <Content />
+        </article>
+      </div>
+
+      <!-- Prawa kolumna: Pasek boczny / Sidebar (4/12) -->
+      <aside class="lg:col-span-4 sticky top-8 space-y-6">
+        
+        <!-- Boks z metadanymi i ewentualnym pobieraniem Excela -->
+        <div class="bg-white border border-slate-100 rounded-xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-6 pb-6 border-b border-slate-50">
+            <div class="flex items-center text-sm text-slate-600"><Tag size={16} class="mr-2" /> Kategoria</div>
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">{category}</span>
+          </div>
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center text-sm text-slate-600"><TrendingUp size={16} class="mr-2" /> Popularność</div>
+            <span class="font-medium text-slate-900">{downloadsCount} użyć</span>
+          </div>
+          
+          {excelLink && (
+            <a href={excelLink} target="_blank" rel="noopener noreferrer" class="flex items-center justify-center w-full px-4 py-3 bg-emerald-50 text-emerald-700 font-semibold rounded-xl hover:bg-emerald-100 border border-emerald-200 transition-colors">
+              <Download size={18} class="mr-2" />
+              Pobierz szablon Excel
+            </a>
+          )}
+        </div>
+
+        <!-- Boks Newsletterowy -->
+        <div class="bg-slate-50 border border-slate-100 rounded-xl p-6">
+          <h3 class="font-bold text-slate-900 mb-2 flex items-center"><Mail size={18} class="mr-2" /> Bądź na bieżąco</h3>
+          <p class="text-sm text-slate-600 mb-4">Chcesz więcej takich darmowych narzędzi dla e-commerce? Zostaw swojego maila.</p>
+          <input type="email" placeholder="Twoj e-mail..." class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm" />
+          <button class="w-full px-4 py-2.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors text-sm">Zapisz się</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+</MainLayout>

@@ -1,0 +1,16 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { getEntry, render } from 'astro:content';
+
+// Pobieramy wpis z nowej kolekcji 'pages' i renderujemy zawartość
+const page = await getEntry('pages', 'o-projekcie');
+const { Content } = await render(page);
+---
+
+<MainLayout title={page.data.title} description={page.data.description}>
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <article class="prose prose-slate prose-lg mx-auto prose-headings:text-slate-900 prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-h1:font-extrabold prose-h1:text-4xl sm:prose-h1:text-5xl prose-h1:tracking-tight prose-h1:mb-8">
+      <Content />
+    </article>
+  </main>
+</MainLayout>

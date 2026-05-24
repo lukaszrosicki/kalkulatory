@@ -1,0 +1,35 @@
+---
+import fs from 'fs';
+import path from 'path';
+
+import type {} from 'node';
+
+interface Props {
+  name: string;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+// Bezpieczniejsze budowanie ścieżki niezależnie od procesu uruchomienia
+const iconPath = path.resolve(process.cwd(), 'node_modules', 'bootstrap-icons', 'icons', `${name}.svg`);
+
+let svgContent = '';
+
+try {
+  svgContent = fs.readFileSync(iconPath, 'utf8');
+  
+  if (className) {
+    // Wstrzykujemy klasę oraz usuwamy domyślne szerokości/wysokości z Bootstrapa, 
+    // aby klasy w-5 h-5 z Tailwinda miały pełną kontrolę
+    svgContent = svgContent
+      .replace('<svg', `<svg class="${className}"`)
+      .replace(/width="[^"]*"/, '')
+      .replace(/height="[^"]*"/, '');
+  }
+} catch (error) {
+  console.error(`[BootstrapIcon] Nie znaleziono ikony o nazwie: ${name} pod ścieżką ${iconPath}`);
+}
+---
+
+<Fragment set:html={svgContent} />

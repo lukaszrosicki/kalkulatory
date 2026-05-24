@@ -1,17 +1,135 @@
 ---
+import MainLayout from '../layouts/MainLayout.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+import { getCollection } from 'astro:content';
+import { Search } from 'lucide-react';
+
+// Pobieramy wszystkie kalkulatory z naszej kolekcji zdefiniowanej w src/content.config.ts
+const calculators = await getCollection('calculators');
+
+// Tworzy nową tablicę składającą się z 9 elementów na bazie Twoich obecnych danych
+const mockCalculators = Array.from({ length: 12 }, (_, index) => {
+  // Bierzemy pierwszy dostępny kalkulator z bazy (lub alternatywny, jeśli masz ich więcej)
+  const baseCalc = calculators[index % calculators.length] || {
+    id: `test-${index}`,
+    data: {
+      title: `Przykładowy Kalkulator ${index + 1}`,
+      description: "Automatyczne wyliczanie kluczowych wskaźników biznesowych dla Twojego sklepu internetowego.",
+      category: "finanse",
+      icon: "Percent",
+    }
+  };
+
+  // Nadpisujemy ID/Slug, żeby każda karta miała unikalny link w prototypie
+  return {
+    ...baseCalc,
+    id: `${baseCalc.id}-${index}`
+  };
+});
 
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<MainLayout title="EcomCalculators - Strona Główna">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    
+    <!-- Sekcja Hero -->
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+        Zoptymalizuj swój e-commerce.
+      </h1>
+      <p class="text-lg text-slate-600 leading-relaxed">
+        Zbiór darmowych, minimalistycznych kalkulatorów, które pomogą Ci w podejmowaniu lepszych decyzji biznesowych, obliczaniu marży i planowaniu logistyki.
+      </p>
+    </section>
+
+    <!-- Sekcja Wyszukiwarki i Tagów -->
+    <section class="max-w-2xl mx-auto mb-16">
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search size={20} class="text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+        </div>
+        <input 
+          id="search-input"
+          type="text" 
+          placeholder="Znajdź kalkulator... np. marża i narzut" 
+          class="block w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl leading-5 bg-transparent placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+        />
+      </div>
+      
+      <div class="flex flex-wrap justify-center gap-2.5 mt-6">
+        <button data-category="wszystko" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-slate-900 text-white hover:bg-slate-800 border border-transparent">Wszystko</button>
+        <button data-category="finanse" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Finanse</button>
+        <button data-category="marketing" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Marketing</button>
+        <button data-category="logistyka" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Logistyka</button>
+      </div>
+    </section>
+
+    <!-- Sekcja Grid (Trzy kolumny dla kart) -->
+   <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {mockCalculators.map((calc) => (
+    <div class="calculator-card-wrapper h-full" data-category={calc.data.category?.toLowerCase()} data-title={calc.data.title?.toLowerCase()}>
+    <CalculatorCard 
+      title={calc.data.title}
+      description={calc.data.description}
+      category={calc.data.category}
+      icon={calc.data.icon}
+      slug={calc.id} 
+    />
+    </div>
+  ))}
+</section>
+
+  </main>
+</MainLayout>
+
+<script>
+  const searchInput = document.getElementById('search-input');
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const calculatorCards = document.querySelectorAll('.calculator-card-wrapper');
+
+  let currentCategory = 'wszystko';
+
+  function filterCards() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    
+    calculatorCards.forEach((card) => {
+      const title = card.getAttribute('data-title') || '';
+      const category = card.getAttribute('data-category') || '';
+      
+      const matchesSearch = title.includes(searchTerm);
+      const matchesCategory = currentCategory === 'wszystko' || category === currentCategory;
+      
+      if (matchesSearch && matchesCategory) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', filterCards);
+  }
+
+  // Tablice klas dla stylów aktywnych i nieaktywnych filtrów
+  const activeClasses = ['bg-slate-900', 'text-white', 'hover:bg-slate-800', 'border-transparent'];
+  const inactiveClasses = ['bg-white', 'border-slate-100', 'text-slate-600', 'hover:border-slate-200', 'hover:bg-slate-50'];
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Zresetuj style wszystkich przycisków
+      filterButtons.forEach(b => {
+        b.classList.remove(...activeClasses);
+        b.classList.add(...inactiveClasses);
+      });
+      
+      // Ustaw styl aktywnego przycisku
+      const target = e.currentTarget;
+      target.classList.remove(...inactiveClasses);
+      target.classList.add(...activeClasses);
+      
+      currentCategory = target.getAttribute('data-category') || 'wszystko';
+      filterCards();
+    });
+  });
+</script>
