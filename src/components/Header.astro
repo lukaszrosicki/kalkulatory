@@ -1,97 +1,31 @@
 ---
-import BootstrapIcon from "./BootstrapIcon.astro";
+// src/components/Footer.astro
+const currentYear = new Date().getFullYear();
+const base = import.meta.env.BASE_URL;
 ---
 
-<header
-  class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md"
->
-  <div
-    class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
-  >
+<footer class="mt-auto border-t border-slate-200 bg-white">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    
     <div class="flex items-center gap-10">
       <div class="flex items-center">
-        <a
-          href="/"
+        <a 
+          href={base} 
           class="text-xl font-bold tracking-tight text-slate-900 transition-colors hover:text-slate-700"
         >
           Calqit.
         </a>
       </div>
 
-      <nav
-        class="hidden md:flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-gray-600"
-      >
-        <a href="/kalkulatory" class="hover:text-gray-900 transition-colors"
-          >Kalkulatory</a
-        >
-        <a href="/o-projekcie" class="hover:text-gray-900 transition-colors"
-          >O projekcie</a
-        >
-        <a href="/kontakt" class="hover:text-gray-900 transition-colors"
-          >Kontakt</a
-        >
+      <nav class="flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-slate-600">
+        <a href={`${base}regulamin`} class="hover:text-slate-900 transition-colors">Regulamin</a>
+        <a href={`${base}polityka-prywatnosci`} class="hover:text-slate-900 transition-colors">Prywatność</a>
+        <a href={`${base}dostepnosc`} class="hover:text-slate-900 transition-colors">Dostępność</a>
       </nav>
     </div>
 
-    <div class="flex items-center gap-4">
-      <a
-        href="https://linkedin.com/in/twoj-profil"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center justify-center p-2 rounded-lg text-gray-950 hover:text-emerald-700 transition-colors"
-        aria-label="LinkedIn"
-      >
-        <BootstrapIcon name="linkedin" class="w-5 h-5" />
-      </a>
-
-      <!-- Przycisk mobilnego menu -->
-      <button
-        id="mobile-menu-btn"
-        class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-950 hover:text-emerald-700 transition-colors"
-        aria-label="Otwórz menu"
-      >
-        <BootstrapIcon name="list" class="w-6 h-6" />
-      </button>
+    <div class="flex items-center gap-4 text-sm text-slate-400 text-center sm:text-right">
+      &copy; {currentYear} Calqit. Wszelkie prawa zastrzeżone.
     </div>
   </div>
-
-  <!-- Mobilne menu (ukryte domyślnie) -->
- <div
-  id="mobile-menu"
-  class="hidden md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-md absolute top-full left-0 w-full shadow-lg"
->
-  <nav class="flex flex-col space-y-1 px-4 py-4 text-sm font-medium text-slate-600">
-    
-    <a
-      href="/kalkulatory"
-      class="group flex items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-100 hover:text-slate-900"
-    >
-      <BootstrapIcon
-        name="calculator"
-        class="w-5 h-5 text-slate-400 group-hover:text-slate-600"
-      />
-      <span>Kalkulatory</span>
-    </a>
-
-    <a
-      href="/o-projekcie"
-      class="flex items-center rounded-lg p-2 transition-colors hover:bg-slate-100 hover:text-slate-900"
-    >
-      <span>O projekcie</span>
-    </a>
-
-    <a
-      href="/kontakt"
-      class="flex items-center rounded-lg p-2 transition-colors hover:bg-slate-100 hover:text-slate-900"
-    >
-      <span>Kontakt</span>
-    </a>
-  </nav>
-</div>
-</header>
-
-<script>
-  document.getElementById("mobile-menu-btn")?.addEventListener("click", () => {
-    document.getElementById("mobile-menu")?.classList.toggle("hidden");
-  });
-</script>
+</footer>
