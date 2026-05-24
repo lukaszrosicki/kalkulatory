@@ -1,156 +1,135 @@
 ---
-import MainLayout from '../../layouts/MainLayout.astro';
-import CalculatorCard from '../../components/CalculatorCard.astro';
+import MainLayout from 'src/layouts/MainLayout.astro';
+import CalculatorCard from 'src/components/CalculatorCard.astro';
 import { getCollection } from 'astro:content';
 import { Search } from 'lucide-react';
 
-// Pobieramy wszystkie kalkulatory
-const allCalculators = await getCollection('calculators');
+// Pobieramy wszystkie kalkulatory z naszej kolekcji zdefiniowanej w src/content.config.ts
+const calculators = await getCollection('calculators');
 
-// Obliczamy liczbę kalkulatorów dla każdej kategorii (TypeScript: Record<string, number>)
-const categoryCounts = allCalculators.reduce((acc, calc) => {
-  const cat = calc.data.category;
-  acc[cat] = (acc[cat] || 0) + 1;
-  return acc;
-}, {} as Record<string, number>);
+// Tworzy nową tablicę składającą się z 9 elementów na bazie Twoich obecnych danych
+const mockCalculators = Array.from({ length: 12 }, (_, index) => {
+  // Bierzemy pierwszy dostępny kalkulator z bazy (lub alternatywny, jeśli masz ich więcej)
+  const baseCalc = calculators[index % calculators.length] || {
+    id: `test-${index}`,
+    data: {
+      title: `Przykładowy Kalkulator ${index + 1}`,
+      description: "Automatyczne wyliczanie kluczowych wskaźników biznesowych dla Twojego sklepu internetowego.",
+      category: "finanse",
+      icon: "Percent",
+    }
+  };
 
-const totalCount = allCalculators.length;
+  // Nadpisujemy ID/Slug, żeby każda karta miała unikalny link w prototypie
+  return {
+    ...baseCalc,
+    id: `${baseCalc.id}-${index}`
+  };
+});
+
 ---
 
-<MainLayout title="Eksploruj Kalkulatory - Calqit">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-    <div class="flex flex-col md:flex-row gap-8 lg:gap-12">
+<MainLayout title="EcomCalculators - Strona Główna">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    
+    <!-- Sekcja Hero -->
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
+        Zoptymalizuj swój e-commerce.
+      </h1>
+      <p class="text-lg text-slate-600 leading-relaxed">
+        Zbiór darmowych, minimalistycznych kalkulatorów, które pomogą Ci w podejmowaniu lepszych decyzji biznesowych, obliczaniu marży i planowaniu logistyki.
+      </p>
+    </section>
+
+    <!-- Sekcja Wyszukiwarki i Tagów -->
+    <section class="max-w-2xl mx-auto mb-16">
+      <div class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search size={20} class="text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+        </div>
+        <input 
+          id="search-input"
+          type="text" 
+          placeholder="Znajdź kalkulator... np. marża i narzut" 
+          class="block w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl leading-5 bg-transparent placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+        />
+      </div>
       
-      {/* Lewa kolumna: Panel boczny */}
-      <aside class="w-full md:w-1/4 lg:w-1/5 shrink-0">
-        <div class="md:sticky md:top-24">
-          <h2 class="text-lg font-bold text-slate-900 mb-4 hidden md:block">Kategorie</h2>
-          
-          {/* Lista kategorii (Pozioma na mobile, pionowa na desktopie) */}
-          <div class="flex md:flex-col gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide" id="category-filters">
-            <button data-category="wszystko" class="category-btn flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-900 text-white transition-colors whitespace-nowrap">
-              <span>Wszystko</span>
-              <span class="ml-2 bg-white/20 text-white px-2 py-0.5 rounded-full text-xs">{totalCount}</span>
-            </button>
-            <button data-category="finanse" class="category-btn flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 transition-colors whitespace-nowrap">
-              <span>Finanse</span>
-              <span class="ml-2 bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-xs">{categoryCounts.finanse || 0}</span>
-            </button>
-            <button data-category="marketing" class="category-btn flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 transition-colors whitespace-nowrap">
-              <span>Marketing</span>
-              <span class="ml-2 bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-xs">{categoryCounts.marketing || 0}</span>
-            </button>
-            <button data-category="logistyka" class="category-btn flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 transition-colors whitespace-nowrap">
-              <span>Logistyka</span>
-              <span class="ml-2 bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-xs">{categoryCounts.logistyka || 0}</span>
-            </button>
-          </div>
-        </div>
-      </aside>
+      <div class="flex flex-wrap justify-center gap-2.5 mt-6">
+        <button data-category="wszystko" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-slate-900 text-white hover:bg-slate-800 border border-transparent">Wszystko</button>
+        <button data-category="finanse" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Finanse</button>
+        <button data-category="marketing" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Marketing</button>
+        <button data-category="logistyka" class="filter-btn px-5 py-2 rounded-full text-sm font-medium transition-colors bg-white border border-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50">Logistyka</button>
+      </div>
+    </section>
 
-      {/* Prawa kolumna: Wyszukiwarka i Grid */}
-      <main class="w-full md:w-3/4 lg:w-4/5">
-        
-        {/* Wyszukiwarka */}
-        <div class="mb-8 relative">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search size={20} class="text-slate-400" />
-          </div>
-          <input 
-            type="text" 
-            id="search-input"
-            placeholder="Szukaj kalkulatora... (np. marża)" 
-            class="block w-full pl-12 pr-4 py-4 bg-white border border-slate-100 rounded-2xl leading-5 bg-transparent placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-900/5 focus:border-slate-300 sm:text-sm transition-all shadow-sm"
-          />
-        </div>
-
-        {/* Grid Kalkulatorów */}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="calculators-grid">
-          {allCalculators.map((calc) => (
-            <div class="calculator-item" data-category={calc.data.category} data-title={calc.data.title.toLowerCase()} data-desc={calc.data.description.toLowerCase()}>
-              <CalculatorCard 
-                title={calc.data.title}
-                description={calc.data.description}
-                category={calc.data.category}
-                icon={calc.data.icon}
-                slug={calc.id} 
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Pusty stan */}
-        <div id="empty-state" class="hidden text-center py-16">
-          <p class="text-slate-500 text-lg">Nie znaleziono kalkulatorów spełniających podane kryteria.</p>
-        </div>
-      </main>
-
+    <!-- Sekcja Grid (Trzy kolumny dla kart) -->
+   <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {mockCalculators.map((calc) => (
+    <div class="calculator-card-wrapper h-full" data-category={calc.data.category?.toLowerCase()} data-title={calc.data.title?.toLowerCase()}>
+    <CalculatorCard 
+      title={calc.data.title}
+      description={calc.data.description}
+      category={calc.data.category}
+      icon={calc.data.icon}
+      slug={calc.id} 
+    />
     </div>
-  </div>
+  ))}
+</section>
+
+  </main>
 </MainLayout>
 
 <script>
-  // Skrypt uruchamiany po stronie klienta
-  document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('search-input');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-    const calculatorItems = document.querySelectorAll('.calculator-item');
-    const emptyState = document.getElementById('empty-state');
+  const searchInput = document.getElementById('search-input');
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const calculatorCards = document.querySelectorAll('.calculator-card-wrapper');
+
+  let currentCategory = 'wszystko';
+
+  function filterCards() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
     
-    let currentCategory = 'wszystko';
-    let searchQuery = '';
-
-    function filterCalculators() {
-      let visibleCount = 0;
-
-      calculatorItems.forEach(item => {
-        const itemCategory = item.getAttribute('data-category');
-        const itemTitle = item.getAttribute('data-title') || '';
-        const itemDesc = item.getAttribute('data-desc') || '';
-
-        const matchesCategory = currentCategory === 'wszystko' || itemCategory === currentCategory;
-        const matchesSearch = itemTitle.includes(searchQuery) || itemDesc.includes(searchQuery);
-
-        if (matchesCategory && matchesSearch) {
-          item.classList.remove('hidden');
-          visibleCount++;
-        } else {
-          item.classList.add('hidden');
-        }
-      });
-
-      if (emptyState) {
-        visibleCount === 0 ? emptyState.classList.remove('hidden') : emptyState.classList.add('hidden');
+    calculatorCards.forEach((card) => {
+      const title = card.getAttribute('data-title') || '';
+      const category = card.getAttribute('data-category') || '';
+      
+      const matchesSearch = title.includes(searchTerm);
+      const matchesCategory = currentCategory === 'wszystko' || category === currentCategory;
+      
+      if (matchesSearch && matchesCategory) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
       }
-    }
-
-    // Obsługa kliknięć w kategorie
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const target = e.currentTarget;
-        currentCategory = target.getAttribute('data-category') || 'wszystko';
-        
-        // Wizualna zmiana aktywnego przycisku
-        categoryBtns.forEach(b => {
-          b.className = "category-btn flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-white text-slate-600 hover:bg-slate-50 border border-slate-100 transition-colors whitespace-nowrap";
-          const badge = b.querySelector('span:last-child');
-          if (badge) badge.className = "ml-2 bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full text-xs";
-        });
-
-        target.className = "category-btn active flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-900 text-white transition-colors whitespace-nowrap";
-        const activeBadge = target.querySelector('span:last-child');
-        if (activeBadge) activeBadge.className = "ml-2 bg-white/20 text-white px-2 py-0.5 rounded-full text-xs";
-
-        filterCalculators();
-      });
     });
+  }
 
-    // Obsługa wpisywania w wyszukiwarkę
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value.toLowerCase();
-        filterCalculators();
+  if (searchInput) {
+    searchInput.addEventListener('input', filterCards);
+  }
+
+  // Tablice klas dla stylów aktywnych i nieaktywnych filtrów
+  const activeClasses = ['bg-slate-900', 'text-white', 'hover:bg-slate-800', 'border-transparent'];
+  const inactiveClasses = ['bg-white', 'border-slate-100', 'text-slate-600', 'hover:border-slate-200', 'hover:bg-slate-50'];
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Zresetuj style wszystkich przycisków
+      filterButtons.forEach(b => {
+        b.classList.remove(...activeClasses);
+        b.classList.add(...inactiveClasses);
       });
-    }
+      
+      // Ustaw styl aktywnego przycisku
+      const target = e.currentTarget;
+      target.classList.remove(...inactiveClasses);
+      target.classList.add(...activeClasses);
+      
+      currentCategory = target.getAttribute('data-category') || 'wszystko';
+      filterCards();
+    });
   });
 </script>
