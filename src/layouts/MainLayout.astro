@@ -21,6 +21,21 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <script is:inline>
+  // Prosta ochrona przed botami i osobami postronnymi na czas testów
+  const HOVER_AUTH_KEY = 'calqit_allowed';
+  const CORRECT_PASSWORD = '111'; // <-- Tutaj wpisz hasło
+
+  if (!sessionStorage.getItem(HOVER_AUTH_KEY)) {
+    const userPass = prompt('Podaj hasło dostępowe do wersji deweloperskiej:');
+    if (userPass === CORRECT_PASSWORD) {
+      sessionStorage.setItem(HOVER_AUTH_KEY, 'true');
+    } else {
+      alert('Błędne hasło.');
+      window.location.href = 'https://google.com'; // Przekierowanie intruza
+    }
+  }
+</script>
   </head>
   <body class="font-sans bg-white">
      <Header />
