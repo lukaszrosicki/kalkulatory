@@ -3,15 +3,15 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 
+// https://astro.build/config
 export default defineConfig({
-  integrations: [react()],
   site: 'https://lukaszrosicki.github.io',
   base: '/kalkulatory/',
+  integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
     build: {
-      // Wymuszamy, by zasoby lądowały w jednym, sztywnym katalogu
-      assetsDir: '_astro',
+      assetsDir: '_astro'
     }
   }
 });
